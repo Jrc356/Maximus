@@ -1,0 +1,22 @@
+{
+    "PAIRS": [
+        "BTCUSD",
+		"ETHUSD",
+		"LTCUSD",
+		"ETCUSD",
+		"RRTUSD",
+		"ZECUSD",
+        "XMRUSD",
+        "XRPUSD",
+        "LTCBTC",
+        "ETHBTC",
+        "ETCBTC",
+        "ZECBTC",
+        "XMRBTC",
+        "XRPBTC"
+    ],
+    "START_DATE":"01/01/2019",
+    "END_DATE":"12/13/2019",
+    "INTERVAL":"1m",
+    "LIMIT":10000
+}
