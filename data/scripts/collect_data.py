@@ -7,6 +7,7 @@ import os
 import sys
 import logging
 from logging import handlers
+from tqdm import tqdm
 
 # LOGGING
 logger = logging.getLogger(__name__)
@@ -26,6 +27,10 @@ PATH = os.path.dirname(os.path.abspath(__file__))
 
 with open(os.path.join(PATH, 'config.json')) as f:
     CONFIG = json.load(f)
+
+
+def scale(value, oldMin, oldMax, newMin, newMax):
+    return ( (value - oldMin) / (oldMax - oldMin) ) * (newMax - newMin) + newMin
 
 
 class Collector:
@@ -49,7 +54,7 @@ class Collector:
             os.mkdir(pair_dir)
 
         fname = os.path.join(pair_dir, f"{pair_name}-{interval}-{start}-{end}.ftr")
-        logger.info(f"Saving to {fname}")
+        logger.debug(f"Saving to {fname}")
         try:
             df.to_feather(fname)
         except Exception as e:
@@ -79,27 +84,32 @@ class Collector:
         df.drop_duplicates(inplace=True)
         df.sort_values("TS", ascending=True, inplace=True)
         df.reset_index(inplace=True)
-        
+
         df.to_feather(os.path.join(pair_dir, f"{pair_name}-COMPLETE.ftr"))
-        
 
     def collect(self, pair, start, end, step, interval):
         logger.info(f'Retrieving data for pair {pair}')
 
         stop = start + step
+        
+        max_it = end-start
+        pbar = tqdm(total=round(scale(end-start, 0, max_it, 0, 100)))
         while start < end:
-            logger.info(f"Collecting data for {pair} from {start} to {stop}")
+            logger.debug(f"Collecting data for {pair} from {start} to {stop}")
             data = self.getPair(pair, start, stop, interval)
+            self.saveData(data, pair, start, stop, interval)
 
             logger.debug(f"Increasing time range by {step}")
             start += step
             stop += step
 
-            self.saveData(data, pair, start, stop, interval)
-
             logger.debug("Waiting 2 seconds")
             time.sleep(2)
-        
+
+            pbar.update(round(scale(step, 0, max_it, 0, 100)))
+
+        pbar.close()
+
         self.combine(pair)
 
 
