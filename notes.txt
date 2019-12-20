@@ -9,5 +9,5 @@ advance -> actions -> make action -> repeat
 
 
 
-17 pairs
-42 columns each
+14 pairs
+41 columns each without ts
