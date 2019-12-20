@@ -7,3 +7,7 @@ for each step in time
 advance -> actions -> make action -> repeat
 
 
+
+
+17 pairs
+42 columns each
