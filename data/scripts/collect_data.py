@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 import time
 import os
+from os.path import dirname
 import sys
 import logging
 from logging import handlers
@@ -23,7 +24,7 @@ fh.setFormatter(format)
 logger.addHandler(fh)
 # END LOGGING
 
-PATH = os.path.dirname(os.path.abspath(__file__))
+PATH = dirname(dirname(dirname(os.path.abspath(__file__))))
 
 with open(os.path.join(PATH, 'config.json')) as f:
     CONFIG = json.load(f)
@@ -49,7 +50,7 @@ class Collector:
         return df
 
     def saveData(self, df, pair_name, start, end, interval):
-        pair_dir = os.path.join(os.path.dirname(PATH), "sets", pair_name)
+        pair_dir = os.path.join(dirname(PATH), "sets", pair_name)
         if not os.path.exists(pair_dir):
             os.mkdir(pair_dir)
 
@@ -63,7 +64,7 @@ class Collector:
             raise e
 
     def combine(self, pair_name):
-        pair_dir = os.path.join(os.path.dirname(PATH), "sets", pair_name)
+        pair_dir = os.path.join(dirname(PATH), "sets", pair_name)
         files = os.listdir(pair_dir)
         files = [file for file in files if "COMPLETE" not in file and "parts" not in file]
 

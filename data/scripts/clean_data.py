@@ -7,7 +7,7 @@ DATAFOLDER_PATH = dirname(dirname(abspath(__file__)))
 
 DATASETS_PATH = join(DATAFOLDER_PATH, "sets")
 
-with open(join(dirname(abspath(__file__)), 'config.json')) as f:
+with open(join(dirname(dirname(dirname(abspath(__file__)))), 'config.json')) as f:
     CONFIG = json.load(f)
 
 
