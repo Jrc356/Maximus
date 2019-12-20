@@ -1,0 +1,9 @@
+for each step in time
+    - advance net
+    - get actions from net
+    - make actions in market
+    - set fitness (current balance in this case)
+
+advance -> actions -> make action -> repeat
+
+
