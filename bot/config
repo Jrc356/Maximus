@@ -5,47 +5,48 @@
 
 [NEAT]
 fitness_criterion = max
-fitness_threshold = 1000
-no_fitness_termination = 1
-pop_size            = 5
+fitness_threshold = 0.2
+pop_size            = 2
 reset_on_extinction = 0
 
 [DefaultGenome]
-num_inputs              = 576
-num_hidden              = 1
+num_inputs              = 412
+num_hidden              = 200
 num_outputs             = 2
 feed_forward            = False
 compatibility_disjoint_coefficient    = 1.0
 compatibility_weight_coefficient      = 0.6
+initial_connection      = full_nodirect
+# structural_mutation_surer = 1
 conn_add_prob           = 0.2
 conn_delete_prob        = 0.2
 node_add_prob           = 0.2
 node_delete_prob        = 0.2
-activation_default      = sigmoid
-activation_options      = sigmoid
-activation_mutate_rate  = 0.1
+activation_default      = relu
+activation_options      = relu sigmoid softplus
+activation_mutate_rate  = 0.2
 aggregation_default     = sum
 aggregation_options     = sum
-aggregation_mutate_rate = 0.1
-bias_init_mean          = 0.5
-bias_init_stdev         = 0.1
+aggregation_mutate_rate = 0.2
+bias_init_mean          = 0
+bias_init_stdev         = 1
 bias_replace_rate       = 0.1
 bias_mutate_rate        = 0.7
 bias_mutate_power       = 0.5
-bias_max_value          = 1
-bias_min_value          = 0
-response_init_mean      = 0.5
-response_init_stdev     = 0.1
-response_replace_rate   = 0.0
-response_mutate_rate    = 0.0
-response_mutate_power   = 0.0
-response_max_value      = 1
-response_min_value      = 0
+bias_max_value          = 100
+bias_min_value          = -100
+response_init_mean      = 0
+response_init_stdev     = 1
+response_replace_rate   = 0.3
+response_mutate_rate    = 0.3
+response_mutate_power   = 0.2
+response_max_value      = 100
+response_min_value      = -100
 
-weight_max_value        = 1
-weight_min_value        = 0
-weight_init_mean        = 0.5
-weight_init_stdev       = 0.1
+weight_max_value        = 100
+weight_min_value        = -100
+weight_init_mean        = 0
+weight_init_stdev       = 1
 weight_mutate_rate      = 0.8
 weight_replace_rate     = 0.1
 weight_mutate_power     = 0.5
@@ -57,8 +58,8 @@ compatibility_threshold = 3.0
 
 [DefaultStagnation]
 species_fitness_func = max
-max_stagnation  = 20
+max_stagnation  = 10
 
 [DefaultReproduction]
-elitism            = 2
-survival_threshold = 0.2
+elitism            = 0
+survival_threshold = 0.25

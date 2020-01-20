@@ -3,6 +3,7 @@ from __future__ import print_function
 import copy
 import warnings
 
+import graphviz
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -19,7 +20,7 @@ def plot_stats(statistics, ylog=False, view=False, filename='avg_fitness.svg'):
     stdev_fitness = np.array(statistics.get_fitness_stdev())
 
     plt.plot(generation, avg_fitness, 'b-', label="average")
-    plt.plot(generation, avg_fitness - stdev_fitness, 'g-.', label="-1 sd")
+    #plt.plot(generation, avg_fitness - stdev_fitness, 'g-.', label="-1 sd")
     plt.plot(generation, avg_fitness + stdev_fitness, 'g-.', label="+1 sd")
     plt.plot(generation, best_fitness, 'r-', label="best")
 
@@ -40,14 +41,17 @@ def plot_stats(statistics, ylog=False, view=False, filename='avg_fitness.svg'):
 
 def plot_spikes(spikes, view=False, filename=None, title=None):
     """ Plots the trains for a single spiking neuron. """
-    t_values = [t for t, I, v, u, f in spikes]
-    v_values = [v for t, I, v, u, f in spikes]
-    u_values = [u for t, I, v, u, f in spikes]
-    I_values = [I for t, I, v, u, f in spikes]
-    f_values = [f for t, I, v, u, f in spikes]
+    if plt is None:
+        warnings.warn("This display is not available due to a missing optional dependency (matplotlib)")
+        return
+
+    t_values = [t for t, I, v, u in spikes]
+    v_values = [v for t, I, v, u in spikes]
+    u_values = [u for t, I, v, u in spikes]
+    I_values = [I for t, I, v, u in spikes]
 
     fig = plt.figure()
-    plt.subplot(4, 1, 1)
+    plt.subplot(3, 1, 1)
     plt.ylabel("Potential (mv)")
     plt.xlabel("Time (in ms)")
     plt.grid()
@@ -58,19 +62,13 @@ def plot_spikes(spikes, view=False, filename=None, title=None):
     else:
         plt.title("Izhikevich's spiking neuron model ({0!s})".format(title))
 
-    plt.subplot(4, 1, 2)
-    plt.ylabel("Fired")
-    plt.xlabel("Time (in ms)")
-    plt.grid()
-    plt.plot(t_values, f_values, "r-")
-
-    plt.subplot(4, 1, 3)
+    plt.subplot(3, 1, 2)
     plt.ylabel("Recovery (u)")
     plt.xlabel("Time (in ms)")
     plt.grid()
     plt.plot(t_values, u_values, "r-")
 
-    plt.subplot(4, 1, 4)
+    plt.subplot(3, 1, 3)
     plt.ylabel("Current (I)")
     plt.xlabel("Time (in ms)")
     plt.grid()
@@ -116,6 +114,9 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
              node_colors=None, fmt='svg'):
     """ Receives a genome and draws a neural network with arbitrary topology. """
     # Attributes for network nodes.
+    if graphviz is None:
+        warnings.warn("This display is not available due to a missing optional dependency (graphviz)")
+        return
 
     if node_names is None:
         node_names = {}
@@ -133,11 +134,14 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
         'height': '0.2',
         'width': '0.2'}
 
+    dot = graphviz.Digraph(format=fmt, node_attr=node_attrs)
+
     inputs = set()
     for k in config.genome_config.input_keys:
         inputs.add(k)
         name = node_names.get(k, str(k))
         input_attrs = {'style': 'filled', 'shape': 'box', 'fillcolor': node_colors.get(k, 'lightgray')}
+        dot.node(name, _attributes=input_attrs)
 
     outputs = set()
     for k in config.genome_config.output_keys:
@@ -145,12 +149,13 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
         name = node_names.get(k, str(k))
         node_attrs = {'style': 'filled', 'fillcolor': node_colors.get(k, 'lightblue')}
 
+        dot.node(name, _attributes=node_attrs)
 
     if prune_unused:
         connections = set()
         for cg in genome.connections.values():
             if cg.enabled or show_disabled:
-                connections.add((cg.in_node_id, cg.out_node_id))
+                connections.add(cg.key)
 
         used_nodes = copy.copy(outputs)
         pending = copy.copy(outputs)
@@ -168,8 +173,8 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
         if n in inputs or n in outputs:
             continue
 
-        attrs = {'style': 'filled',
-                 'fillcolor': node_colors.get(n, 'white')}
+        attrs = {'style': 'filled', 'fillcolor': node_colors.get(n, 'white')}
+        dot.node(str(n), _attributes=attrs)
 
     for cg in genome.connections.values():
         if cg.enabled or show_disabled:
@@ -181,3 +186,8 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
             style = 'solid' if cg.enabled else 'dotted'
             color = 'green' if cg.weight > 0 else 'red'
             width = str(0.1 + abs(cg.weight / 5.0))
+            dot.edge(a, b, _attributes={'style': style, 'color': color, 'penwidth': width})
+
+    dot.render(filename, view=view)
+
+    return dot
